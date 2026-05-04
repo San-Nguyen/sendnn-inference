@@ -20,6 +20,11 @@ else:
 
 logger = init_logger(__name__)
 
+# Ensure that block_size is 64
+# This ensures the rounding function is correct
+assert SpyrePlatform.get_block_size() == 64
+
+
 def round_up_to_block_size(n: int) -> int:
     # Helper function to round up to the nearest block size
     # Uses bitwise alignment for better performance
@@ -507,7 +512,7 @@ class ChunkedPrefillSpyreScheduler(SpyreScheduler):
         num_prefills = len(self.waiting) + len(self.ongoing_prefills)
         return num_prefills < max_concurrent_prefills
 
-        def check_batch_tkv_limit_cp(self, request: Request, new_req_tkv: int, running) -> bool:
+    def check_batch_tkv_limit_cp(self, request: Request, new_req_tkv: int, running) -> bool:
         """
         Check whether adding a new sequence to the decode batch would violate
         Spyre's maximum batch volume constraint for chunked prefill.
@@ -542,7 +547,7 @@ class ChunkedPrefillSpyreScheduler(SpyreScheduler):
             n_generated_output_tokens = req.num_computed_tokens - req.num_prompt_tokens
             # Rounded up to the nearest block size to account for potential padding
             dec_req_max_tkv = round_up_to_block_size(
-                    dec_req_tkv + (req.max_tokens - n_generated_output_tokens) - 1
+                dec_req_tkv + (req.max_tokens - n_generated_output_tokens) - 1
             )
             decode_req_max_tkvs.append(dec_req_max_tkv)
 
