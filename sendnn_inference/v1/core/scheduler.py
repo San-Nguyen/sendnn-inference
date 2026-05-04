@@ -20,6 +20,10 @@ else:
 
 logger = init_logger(__name__)
 
+def round_up_to_block_size(n: int) -> int:
+    # Helper function to round up to the nearest block size
+    # Uses bitwise alignment for better performance
+    return (n + 63) & ~63
 
 class SpyreScheduler(Scheduler):
     """Base class inheriting from the V1 scheduler to support static
@@ -480,7 +484,6 @@ class ChunkedPrefillSpyreScheduler(SpyreScheduler):
         cond3 = lambda: self.check_batch_tkv_limit_cp(
             request=request,
             new_req_tkv=new_req_tkv,
-            n_blocks=n_blocks,
             running=decoding_requests,
         )
 
@@ -504,9 +507,7 @@ class ChunkedPrefillSpyreScheduler(SpyreScheduler):
         num_prefills = len(self.waiting) + len(self.ongoing_prefills)
         return num_prefills < max_concurrent_prefills
 
-    def check_batch_tkv_limit_cp(
-        self, request: Request, new_req_tkv: int, n_blocks: int, running
-    ) -> bool:
+        def check_batch_tkv_limit_cp(self, request: Request, new_req_tkv: int, running) -> bool:
         """
         Check whether adding a new sequence to the decode batch would violate
         Spyre's maximum batch volume constraint for chunked prefill.
@@ -531,17 +532,18 @@ class ChunkedPrefillSpyreScheduler(SpyreScheduler):
         """
 
         # Compute the effective token length of the new request
-        new_req_max_tkv = new_req_tkv + request.max_tokens - 1
-
+        # Rounded up to the nearest block size to account for potential padding
+        new_req_max_tkv = round_up_to_block_size(new_req_tkv + request.max_tokens - 1)
         # Compute token lengths for all running requests (decode batch)
         decode_req_max_tkvs = []
         # Decide new tkv based on max of current tkv or new request prompt tokens
         dec_req_tkv = max(self.tkv, request.num_prompt_tokens)
         for req in running:
             n_generated_output_tokens = req.num_computed_tokens - req.num_prompt_tokens
-            dec_req_max_tkv = dec_req_tkv + (req.max_tokens - n_generated_output_tokens) - 1
-            # Account for potential padding block
-            dec_req_max_tkv += self.block_size
+            # Rounded up to the nearest block size to account for potential padding
+            dec_req_max_tkv = round_up_to_block_size(
+                    dec_req_tkv + (req.max_tokens - n_generated_output_tokens) - 1
+            )
             decode_req_max_tkvs.append(dec_req_max_tkv)
 
         # Sort decode requests token lengths in ascending order
