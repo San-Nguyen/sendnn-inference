@@ -719,6 +719,7 @@ class SpyrePlatform(Platform):
         reference directly, not just the source module.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         """
         import vllm.tokenizers.registry as tokenizer_registry
 
@@ -734,6 +735,11 @@ class SpyrePlatform(Platform):
             return
 
 >>>>>>> :bug: Fix mistral tokenizer loads (#951)
+=======
+        """
+        import vllm.tokenizers.registry as tokenizer_registry
+
+>>>>>>> chore: add vllm v0.20.0 support and model smoke tests (#952)
         original_get_config = tokenizer_registry.get_config
 
         def safe_get_config(*args, **kwargs):
