@@ -50,7 +50,7 @@ _templates:
      hidden_size: 1152
      num_attention_heads: 16
 
-  # device config for TP=4 Granite 8b models   
+  # device config for Granite Vision 2b model   
   granite_vision_2b_device_config: &granite_vision_2b_device_config
     env_vars:
       VLLM_DT_MAX_BATCH_TKV_LIMIT: 131072  # 128k
