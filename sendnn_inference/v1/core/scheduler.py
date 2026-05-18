@@ -30,6 +30,7 @@ def round_up_to_block_size(n: int) -> int:
     # Uses bitwise alignment for better performance
     return (n + 63) & ~63
 
+
 class SpyreScheduler(Scheduler):
     """Base class inheriting from the V1 scheduler to support static
     and continuous batching respecting AIU Spyre constraints."""
@@ -556,7 +557,7 @@ class ChunkedPrefillSpyreScheduler(SpyreScheduler):
             # Extra block of slack: left-padding can push a sequence's runtime tkv up to
             # one block past the scheduler's estimate when the batch re-aligns on admission.
             dec_req_max_tkv += self.block_size
-            
+
             decode_req_max_tkvs.append(dec_req_max_tkv)
 
         # Sort decode requests token lengths in ascending order

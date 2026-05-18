@@ -718,28 +718,12 @@ class SpyrePlatform(Platform):
         This creates a local reference, so we must patch the registry module's
         reference directly, not just the source module.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        """
-        import vllm.tokenizers.registry as tokenizer_registry
-
-=======
         This patch is only applied if get_config exists in the tokenizer registry
         module (it was added in vllm 0.19.1).
+        
         """
         import vllm.tokenizers.registry as tokenizer_registry
 
-        # Only patch if get_config exists in this vLLM version
-        if not hasattr(tokenizer_registry, "get_config"):
-            logger.debug("Skipping get_config patch: not present in this vLLM version")
-            return
-
->>>>>>> :bug: Fix mistral tokenizer loads (#951)
-=======
-        """
-        import vllm.tokenizers.registry as tokenizer_registry
-
->>>>>>> chore: add vllm v0.20.0 support and model smoke tests (#952)
         original_get_config = tokenizer_registry.get_config
 
         def safe_get_config(*args, **kwargs):
