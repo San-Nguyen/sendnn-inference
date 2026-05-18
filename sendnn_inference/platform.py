@@ -718,8 +718,6 @@ class SpyrePlatform(Platform):
         This creates a local reference, so we must patch the registry module's
         reference directly, not just the source module.
 
-        This patch is only applied if get_config exists in the tokenizer registry
-        module (it was added in vllm 0.19.1).
         
         """
         import vllm.tokenizers.registry as tokenizer_registry
