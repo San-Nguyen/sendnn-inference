@@ -49,13 +49,6 @@ _templates:
      num_hidden_layers: 27
      hidden_size: 1152
      num_attention_heads: 16
-
-  # device config for Granite Vision 2b model   
-  granite_vision_2b_device_config: &granite_vision_2b_device_config
-    env_vars:
-      VLLM_DT_MAX_BATCH_TKV_LIMIT: 131072  # 128k
-      FLEX_HDMA_P2PSIZE: 268435456  # 256MB
-      FLEX_HDMA_COLLSIZE: 33554432  # 32MB
      
   llama3_8b_architecture: &llama3_8b_architecture
     model_type: llama
