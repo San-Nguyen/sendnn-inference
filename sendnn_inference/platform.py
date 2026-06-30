@@ -59,6 +59,7 @@ THREADING_ENVS = [
 
 DEFAULT_MAX_MODEL_LEN = 32 * 1024
 DEFAULT_MAX_NUM_SEQS = 32
+DEFAULT_TKV_LIMIT = 131072  # 128k
 
 
 # Needed by vllm/model_executor/layers/pooler.py:562
@@ -337,12 +338,15 @@ class SpyrePlatform(Platform):
                     DEFAULT_MAX_NUM_SEQS,
                     DEFAULT_MAX_MODEL_LEN,
                 )
-                vllm_config.scheduler_config.max_num_seqs = min(
-                    vllm_config.scheduler_config.max_num_seqs, DEFAULT_MAX_NUM_SEQS
-                )
-                vllm_config.model_config.max_model_len = min(
-                    vllm_config.model_config.max_model_len, DEFAULT_MAX_MODEL_LEN
-                )
+                if is_decoder:
+                    vllm_config.scheduler_config.max_num_seqs = min(
+                        vllm_config.scheduler_config.max_num_seqs, DEFAULT_MAX_NUM_SEQS
+                    )
+                    vllm_config.model_config.max_model_len = min(
+                        vllm_config.model_config.max_model_len, DEFAULT_MAX_MODEL_LEN
+                    )
+                    tkv_env = int(os.getenv("VLLM_DT_MAX_BATCH_TKV_LIMIT", f"{DEFAULT_TKV_LIMIT}"))
+                    os.environ["VLLM_DT_MAX_BATCH_TKV_LIMIT"] = str(min(DEFAULT_TKV_LIMIT, tkv_env))
 
         else:
             logger.debug(
