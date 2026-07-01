@@ -219,7 +219,7 @@ class SpyrePlatform(Platform):
 
     @classmethod
     def check_and_update_config(cls, vllm_config: VllmConfig) -> None:
-        # 🌶️🌶️🌶️ Patch in our perf logger before the engine is created
+        # 🌶🌶🌶 Patch in our perf logger before the engine is created
         from sendnn_inference.v1.metrics import patch_async_llm_stat_loggers
 
         patch_async_llm_stat_loggers()
