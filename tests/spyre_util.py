@@ -178,7 +178,7 @@ class RemoteOpenAIServer:
         return f"http://{self.host}:{self.port}"
 
     def url_for(self, *parts: str) -> str:
-        return self.url_root + "/" + "/".join(parts)
+        return self.url_root + "/" + "/".join(p.strip("/") for p in parts)
 
     def get_client(self, **kwargs):
         if "timeout" not in kwargs:
@@ -319,8 +319,11 @@ def _default_test_models(
 ):
     """Return the default set of test models as pytest parameterizations"""
     if isEmbeddings:
-        model = REFERENCE_MODELS["sentence-transformers/all-roberta-large-v1"]
-        return [pytest.param(model, marks=[pytest.mark.embedding], id=model.name)]
+        roberta = REFERENCE_MODELS["sentence-transformers/all-roberta-large-v1"]
+        params = [
+            pytest.param(roberta, marks=[pytest.mark.embedding], id=roberta.name),
+        ]
+        return params
 
     if isScoring:
         model = REFERENCE_MODELS["cross-encoder/stsb-roberta-large"]
